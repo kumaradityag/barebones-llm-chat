@@ -1,5 +1,10 @@
 Pillow
 einops
+torch
 torchvision
 accelerate>=0.26.0
--e git+https://github.com/allenai/OLMo.git
+transformers
+tokenizers
+ai2-olmo-core
+
+#-e git+https://github.com/allenai/OLMo.git
