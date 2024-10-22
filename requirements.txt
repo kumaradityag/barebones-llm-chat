@@ -7,4 +7,4 @@ transformers
 tokenizers
 ai2-olmo-core
 
--e git+https://github.com/allenai/OLMo.git
+#-e git+https://github.com/allenai/OLMo.git
