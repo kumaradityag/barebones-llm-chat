@@ -20,12 +20,14 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 # process the image and text
-url_images = ["https://www.youcubed.org/wp-content/uploads/2017/03/block-tower.jpg"]
-images = []
-for url in url_images:
-    images.append(
-        Image.open(requests.get(url).raw)
-    )
+#url_images = ["https://www.youcubed.org/wp-content/uploads/2017/03/block-tower.jpg"]
+#images = []
+#for url in url_images:
+#    images.append(
+#        Image.open(requests.get(url).raw)
+#    )
+
+images = [Image.open("./block-tower.jpg")]
 
 inputs = processor.process(
     images=[images],
