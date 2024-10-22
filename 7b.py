@@ -20,8 +20,15 @@ model = AutoModelForCausalLM.from_pretrained(
 )
 
 # process the image and text
+url_images = ["https://www.youcubed.org/wp-content/uploads/2017/03/block-tower.jpg"]
+images = []
+for url in url_images:
+    images.append(
+        Image.open(requests.get(url).raw)
+    )
+
 inputs = processor.process(
-    images=[Image.open(requests.get("https://www.youcubed.org/wp-content/uploads/2017/03/block-tower.jpg", stream=True).raw)],
+    images=[images],
     text="You have access to two 'spots' to place blocks: spot Alpha and Spot Beta. The tower in the photo is on spot Alpha. You can only manipulate one block at once. Provide a sequence of actions to re-arange to blocks such that now blue is on the bottom, red middle, yellow top."
 )
 
