@@ -6,8 +6,8 @@
 #SBATCH --gres=gpu:rtx8000:1
 #SBATCH --nodes=1  # Ensure all resources are allocated on a single node
 
-#SBATCH --output=/home/mila/c/charlie.gauthier
-#SBATCH --error=/home/mila/c/charlie.gauthier
+#SBATCH --output=/home/mila/c/charlie.gauthier/out.log
+#SBATCH --error=/home/mila/c/charlie.gauthier/err.log
 
 module load python/3.8
 module load cuda/11.8
