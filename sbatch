@@ -12,9 +12,5 @@ module load cuda/11.8
 
 export HF_HOME='/network/scratch/c/charlie.gauthier/hfcache'
 
-<<<<<<< HEAD
 source /home/mila/c/charlie.gauthier/olmo-server/venv/bin/activate
-python3 7b.py
-=======
 python3 1.py
->>>>>>> ed49d28387f35313c006cac8910e5e637a8b1116
