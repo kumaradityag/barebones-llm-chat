@@ -30,7 +30,7 @@ model = AutoModelForCausalLM.from_pretrained(
 images = [Image.open("./block-tower.jpg")]
 
 inputs = processor.process(
-    images=[images],
+    images=images,
     text="You have access to two 'spots' to place blocks: spot Alpha and Spot Beta. The tower in the photo is on spot Alpha. You can only manipulate one block at once. Provide a sequence of actions to re-arange to blocks such that now blue is on the bottom, red middle, yellow top."
 )
 
