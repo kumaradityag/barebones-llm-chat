@@ -3,7 +3,7 @@
 #SBATCH --time=04:59:00
 #SBATCH --mem=31G
 #SBATCH --cpus-per-task=4
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:a100l:1
 #SBATCH --nodes=1  # Ensure all resources are allocated on a single node
 #SBATCH --output=/home/mila/c/charlie.gauthier/olmo-server/logs/out_%A_%a.log
 
