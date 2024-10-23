@@ -29,10 +29,10 @@ model = AutoModelForCausalLM.from_pretrained(
 
 images = [Image.open("./block-tower.jpg")]
 
-inputs = processor.process(
-    images=images,
-    text="""
-    First, describe the image. Then, follow these instructions:
+query = """
+    First, describe the image. 
+    
+    Then, follow these instructions:
     
     You have access to two 'spots' to place blocks: spot Alpha and spot Beta. The tower in the photo is currently on Alpha. 
 
@@ -40,6 +40,11 @@ You can only manipulate one block at once. Provide a sequence of actions to re-a
 
 You are allowed to REJECT a task if it is impossible.
     """
+
+
+inputs = processor.process(
+    images=images,
+    text=query
 )
 
 # move inputs to the correct device and make a batch of size 1
