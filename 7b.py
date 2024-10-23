@@ -30,15 +30,7 @@ model = AutoModelForCausalLM.from_pretrained(
 images = [Image.open("./block-tower.jpg")]
 
 query = """
-    First, describe the image. 
-    
-    Then, follow these instructions:
-    
-    You have access to two 'spots' to place blocks: spot Alpha and spot Beta. The tower in the photo is currently on Alpha. 
-
-You can only manipulate one block at once. Provide a sequence of actions to re-arange the blocks such that you obtain a tower where blue is on the bottom, red middle, yellow top.
-
-You are allowed to REJECT a task if it is impossible.
+    Describe the image. 
     """
 
 
