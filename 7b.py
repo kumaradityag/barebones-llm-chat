@@ -5,7 +5,7 @@ import requests
 
 # load the processor
 processor = AutoProcessor.from_pretrained(
-    'allenai/Molmo-7B-D-0924',
+    'allenai/Molmo-72B-0924', # 'allenai/Molmo-7B-D-0924'
     trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
@@ -13,7 +13,7 @@ processor = AutoProcessor.from_pretrained(
 
 # load the model
 model = AutoModelForCausalLM.from_pretrained(
-    'allenai/Molmo-7B-D-0924',
+    'allenai/Molmo-72B-0924', # 'allenai/Molmo-7B-D-0924'
     trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
