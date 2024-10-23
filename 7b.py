@@ -31,7 +31,13 @@ images = [Image.open("./block-tower.jpg")]
 
 inputs = processor.process(
     images=images,
-    text="You have access to two 'spots' to place blocks: spot Alpha and Spot Beta. The tower in the photo is on spot Alpha. You can only manipulate one block at once. Provide a sequence of actions to re-arange to blocks such that now blue is on the bottom, red middle, yellow top."
+    text="""
+    You have access to two 'spots' to place blocks: spot Alpha and spot Beta. The tower in the photo is currently on Alpha. 
+
+You can only manipulate one block at once. Provide a sequence of actions to re-arange the blocks such that you obtain a tower where blue is on the bottom, red middle, yellow top.
+
+You are allowed to REJECT a task if it is impossible.
+    """
 )
 
 # move inputs to the correct device and make a batch of size 1
