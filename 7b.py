@@ -32,6 +32,8 @@ images = [Image.open("./block-tower.jpg")]
 inputs = processor.process(
     images=images,
     text="""
+    First, describe the image. Then, follow these instructions:
+    
     You have access to two 'spots' to place blocks: spot Alpha and spot Beta. The tower in the photo is currently on Alpha. 
 
 You can only manipulate one block at once. Provide a sequence of actions to re-arange the blocks such that you obtain a tower where blue is on the bottom, red middle, yellow top.
@@ -46,7 +48,7 @@ inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
 with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
   output = model.generate_from_batch(
       inputs,
-      GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
+      GenerationConfig(max_new_tokens=500, stop_strings="<|endoftext|>"),
       tokenizer=processor.tokenizer
   )
 
