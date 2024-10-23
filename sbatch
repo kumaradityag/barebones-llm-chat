@@ -12,4 +12,4 @@ module load cuda/11.8
 
 export HF_HOME='/network/scratch/c/charlie.gauthier/hfcache'
 
-python3 7b.py
+python3 1.py
