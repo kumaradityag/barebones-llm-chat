@@ -1,75 +1,65 @@
-# https://github.com/allenai/OLMo
-import requests
+from dataclasses import dataclass
+from typing import List
 import torch
 from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
 from PIL import Image
+import requests
 
-#from transformers import pipeline
-#olmo_pipe = pipeline("text-generation", model="allenai/OLMo-1B-0724-hf")
-#print(olmo_pipe("Language modeling is"))
+from chat_history import CHAT_ROLE, ChatHistory
+    
 
+class Olmo:
+    def __init__(self, model_string='allenai/Molmo-7B-D-0924', precision=torch.bfloat16):
+        self.processor = AutoProcessor.from_pretrained(
+            model_string, 
+            trust_remote_code=True,
+            torch_dtype='auto',
+            device_map='auto'
+        )
 
-#from transformers import AutoModelForCausalLM, AutoTokenizer
+        self.precision = precision
 
-#olmo = AutoModelForCausalLM.from_pretrained("allenai/OLMo-1B-0724-hf")
-#tokenizer = AutoTokenizer.from_pretrained("allenai/OLMo-1B-0724-hf")
+        self.model = AutoModelForCausalLM.from_pretrained(
+            'allenai/Molmo-7B-D-0924', # 'allenai/Molmo-7B-D-0924'
+            trust_remote_code=True,
+            torch_dtype='auto',
+            device_map='auto'
+        ).to(dtype=self.precision)
+    
+    def respond(self, chat):
+        inputs = self.processor.process(
+            images=chat.images,
+            text=chat.pack(),
+            message_format=None
+        )
+        inputs = {k: v.to(self.model.device).unsqueeze(0) for k, v in inputs.items()}
+        inputs["images"] = inputs["images"].to(self.precision)
 
-#message = ["We will test your cognition abilities.\n\nHere are your possible actions: A) Pick up. B) Place.\n\nHere is a description of the game board: there are two spots to place cubes (spot Alpha and spot Beta).\n\nHere is a description of the game board's state: on Alpha, there are three stacked cubes, in order, red, green, blue. Spot Beta is empty,\n\n You must use actions (A) and (B) to obtain a tower of cubes, in order, green, blue, red.\n\nNow tell me the sequence of actions you wish to apply."]
-#inputs = tokenizer(message, return_tensors='pt', return_token_type_ids=False)
-#response = olmo.generate(**inputs, max_new_tokens=500, do_sample=True, top_k=50, top_p=0.95)
-#print(tokenizer.batch_decode(response, skip_special_tokens=True)[0])
+        output = self.model.generate_from_batch(
+            inputs,
+            GenerationConfig(max_new_tokens=200, stop_strings="<|endoftext|>"),
+            tokenizer=self.processor.tokenizer
+        )
 
+        generated_tokens = output[0,inputs['input_ids'].size(1):]
+        generated_text = self.processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
 
-import torch
-from transformers import pipeline
-chat = [
-    {
-        "role":"user",
-        "content":[
-            {
-                "type":"image",
-            },
-            {
-                "type":"text",
-                "text":"Describe this image."
-            }
-        ]
-    }
-]
+        chat = chat.add(CHAT_ROLE.ASSISTANT, generated_text)
+        return chat
 
-# load the processor
-processor = AutoProcessor.from_pretrained(
-    'allenai/Molmo-7B-D-0924', # 'allenai/Molmo-7B-D-0924'
-    trust_remote_code=True,
-    torch_dtype='auto',
-    device_map='auto'
-)
+        
 
-# load the model
-model = AutoModelForCausalLM.from_pretrained(
-    'allenai/Molmo-7B-D-0924', # 'allenai/Molmo-7B-D-0924'
-    trust_remote_code=True,
-    torch_dtype='auto',
-    device_map='auto'
-)
+olmo = Olmo()    
 
-url = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen-VL/assets/demo.jpeg"
-image = Image.open(requests.get(url, stream=True).raw)
-inputs = processor.process(text='Describe the image', images=[image], padding=True, return_tensors="pt")
+chat = ChatHistory().add(CHAT_ROLE.USER, "Describe the image").add_img(Image.open("./block-tower.jpg"))
 
-inputs = {k: v.to(model.device).unsqueeze(0) for k, v in inputs.items()}
+chat = olmo.respond(chat)
 
+print("here")
 
-with torch.autocast(device_type="cuda", enabled=True, dtype=torch.bfloat16):
-  output = model.generate_from_batch(
-      inputs,
-      GenerationConfig(max_new_tokens=500, stop_strings="<|endoftext|>"),
-      tokenizer=processor.tokenizer
-  )
+chat = chat.add(CHAT_ROLE.USER, "Can you point at the red block?")
 
-# only get generated tokens; decode them to text
-generated_tokens = output[0,inputs['input_ids'].size(1):]
-generated_text = processor.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+chat = olmo.respond(chat)
 
-# print the generated text
-print(generated_text)
+print(chat.pretty())
+

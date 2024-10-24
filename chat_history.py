@@ -1,5 +1,7 @@
+from dataclasses import dataclass
+import dataclasses
 from enum import Enum
-from typing import Union
+from typing import List, Tuple, Union
 
 
 # class syntax
@@ -9,13 +11,38 @@ class CHAT_ROLE(Enum):
     USER = 2
     ASSISTANT = 3
 
+@dataclass
 class ChatHistory:
-    def __init__(self):
-        self.history = []
+    history: Tuple = tuple()
+    images: Tuple = tuple()
 
-    def append(self, role: Union[CHAT_ROLE, str], message):
-        self.history.append({"role": role, "content": message})
+    def replace(self, **kwargs):
+        return dataclasses.replace(self, **kwargs)
 
-    @property
-    def get(self):
-        return self.history
+    def add(self, role: Union[CHAT_ROLE, str], message):
+        if isinstance(role, CHAT_ROLE):
+            role = role.name
+
+        new_history = (*self.history, {"role": role, "content": message})
+        return self.replace(history=new_history)
+
+    def add_img(self, image):
+        return self.replace(images=(*self.images, image))
+
+    def pack(self) -> str:
+        ret = []
+        for message in self.history:
+            ret.append(f"{message['role'].capitalize()}: {message['content']}")
+        
+        ret = "\n".join(ret) + " Assistant:"
+        return ret
+    
+    def pretty(self):
+        ret = []
+        for message in self.history:
+            ret.append(f"{message['role'].capitalize()}: {message['content']}")
+
+        return "\n\n".join(ret)
+
+if __name__ == "__name__":
+    ch = ChatHistory()
