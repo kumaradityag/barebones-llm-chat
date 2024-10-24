@@ -11,32 +11,21 @@ processor = AutoProcessor.from_pretrained(
     device_map='auto'
 )
 
-# load the model
+images = [Image.open("./block-tower.jpg")]
+query = """
+    Describe the image. 
+    """
+inputs = processor.process(
+    images=images,
+    text=query
+)
+
+
 model = AutoModelForCausalLM.from_pretrained(
     'allenai/Molmo-72B-0924', # 'allenai/Molmo-7B-D-0924'
     trust_remote_code=True,
     torch_dtype='auto',
     device_map='auto'
-)
-
-# process the image and text
-#url_images = ["https://www.youcubed.org/wp-content/uploads/2017/03/block-tower.jpg"]
-#images = []
-#for url in url_images:
-#    images.append(
-#        Image.open(requests.get(url).raw)
-#    )
-
-images = [Image.open("./block-tower.jpg")]
-
-query = """
-    Describe the image. 
-    """
-
-
-inputs = processor.process(
-    images=images,
-    text=query
 )
 
 # move inputs to the correct device and make a batch of size 1
