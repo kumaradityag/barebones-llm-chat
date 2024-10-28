@@ -7,5 +7,8 @@ transformers
 tokenizers
 ai2-olmo-core
 autoawq
+python-socketio[client]
+flask_socketio
+requests
 
 #-e git+https://github.com/allenai/OLMo.git

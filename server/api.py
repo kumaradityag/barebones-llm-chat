@@ -6,6 +6,8 @@ import hashlib
 import shutil
 import signal
 
+from flask_socketio import SocketIO, emit
+
 from flask import Flask, request, jsonify, send_from_directory
 from uuid import uuid4
 from dataclasses import dataclass
@@ -17,6 +19,7 @@ from server.random_names import generate_name
 
 # Initialize Flask app
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 # Configure the image storage directory
 UPLOAD_FOLDER = './uploads'
@@ -100,6 +103,7 @@ signal.signal(signal.SIGINT, graceful_shutdown)
 API_KEY = "your_api_key"
 
 
+
 def authenticate(api_key):
     return api_key == API_KEY
 
@@ -122,6 +126,16 @@ def save_image(image_file):
 
     return image_hash
 
+
+# WebSocket route to notify chatbot
+@socketio.on('connect')
+def handle_connect():
+    print("Chatbot connected to WebSocket")
+
+def notify_new_message(chat_id):
+    # Broadcasts to all connected WebSocket clients (e.g., the chatbot)
+    jsonned = json.dumps(chats[chat_id].history)
+    socketio.emit('new_message_from_user', {'chat_id': chat_id, 'chat_history': jsonned})
 
 # Create a new chat
 @app.route('/create_chat', methods=['POST'])
@@ -161,6 +175,12 @@ def send_message():
 
     # Add the message (with image hash if applicable)
     chats[chat_id] = chats[chat_id].add(role, message, image=image_hash)
+
+    if role.lower() == CHAT_ROLE.USER.name.lower():
+        notify_new_message(chat_id)
+    elif role.lower() == CHAT_ROLE.ASSISTANT.name.lower():
+        socketio.emit('new_message_from_assistant', {"chat_id": chat_id})
+
     return jsonify({"status": "Message added"}), 200
 
 
@@ -231,8 +251,8 @@ def serve_homepage():
 if __name__ == '__main__':
 
     try:
-        app.run(debug=True, host="0.0.0.0", port=5000)
+        socketio.run(app, debug=True, host="0.0.0.0", port=5000, allow_unsafe_werkzeug=True, use_reloader=False)
     except KeyboardInterrupt:
         # This except block will handle a keyboard interrupt (Ctrl+C)
-        graceful_shutdown()
+        graceful_shutdown(None, None)
 

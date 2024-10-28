@@ -14,16 +14,20 @@ class CHAT_ROLE(Enum):
 @dataclass
 class ChatHistory:
     history: Tuple = tuple()
-    images: Tuple = tuple()
+
+    def get_all_image_hashes(self):
+        images = [chat["image"] for chat in self.history if chat["image"] is not None]
+        return images
 
     def replace(self, **kwargs):
         return dataclasses.replace(self, **kwargs)
 
-    def add(self, role: Union[CHAT_ROLE, str], message):
+    def add(self, role: Union[CHAT_ROLE, str], message, image=None):
         if isinstance(role, CHAT_ROLE):
             role = role.name
 
-        new_history = (*self.history, {"role": role, "content": message})
+        new_message = {"role": role, "content": message, "image": image}
+        new_history = (*self.history, new_message)
         return self.replace(history=new_history)
 
     def add_img(self, image):

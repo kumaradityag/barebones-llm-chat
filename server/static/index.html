@@ -35,8 +35,9 @@
     </form>
 </div>
 
+<script src="https://cdn.socket.io/4.8.0/socket.io.min.js" integrity="sha384-OoIbkvzsFFQAG88r+IqMAjyOtYDPGO0cqK5HF5Uosdy/zUEGySeAzytENMDynREd" crossorigin="anonymous"></script>
 <script>
-    const BASE_URL = ".";  // Replace with your server URL if not serving from Flask
+    const BASE_URL = "";  // Replace with your server URL if not serving from Flask
     let currentChatId = null;
 
     async function loadChats() {
@@ -160,6 +161,19 @@
             await createChat();
         }
     };
+
+
+    const socket = io(`${BASE_URL}:5000`);
+    socket.on('new_message_from_assistant', function(data) {
+            const { chat_id } = data;
+
+            console.log("socket call");
+
+            if (!currentChatId) return;
+            if (chat_id == currentChatId) {
+                loadChatMessages();
+            }
+        });
 
 
 </script>
