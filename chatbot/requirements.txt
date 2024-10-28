@@ -1,0 +1,12 @@
+Pillow
+einops
+torch
+torchvision
+accelerate>=0.26.0
+transformers
+tokenizers
+ai2-olmo-core
+autoawq
+python-socketio[client]
+flask_socketio
+requests

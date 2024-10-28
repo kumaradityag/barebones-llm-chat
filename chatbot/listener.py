@@ -1,66 +1,120 @@
-import time
-import websocket
 import json
-import threading
+import os
+import pathlib
+import shutil
+import sys
 
-WS_URL = "ws://127.0.0.1:5000"  # Replace with your server's WebSocket address
+import requests
+import socketio
+from PIL import Image
 
-# Buffer to store incoming messages for batching
-message_buffer = []
-batch_interval = 5  # N seconds for batching
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
+from common.chat_history import ChatHistory
 
+CONST_SERVER_IP = '127.0.0.1'
 
-# Function to process and answer batched messages
-def process_batch():
-    while True:
-        time.sleep(batch_interval)
-        if message_buffer:
-            # Fetch images if needed and send responses here
-            messages = message_buffer[:]
-            message_buffer.clear()
-            print(f"Processing batch of {len(messages)} messages")
-            # Call LLM to respond to messages...
+sio = socketio.Client()
+sio.connect(f'http://{CONST_SERVER_IP}:5000')
 
+CONST_DOWNLOADS_TO_KEEP = 10
+CONST_DOWNLOAD_DIR = "./downloads"
+shutil.rmtree(CONST_DOWNLOAD_DIR, ignore_errors=True)   # todo maybe not wipe downloads every init
+os.makedirs(CONST_DOWNLOAD_DIR, exist_ok=True)
 
-def on_message(ws, message):
-    data = json.loads(message)
-    chat_id = data.get("chat_id")
-    message = data.get("message")
+from chatbot.molmo_bot import Olmo
+LLM = Olmo()
 
-    # Add new message to the buffer
-    message_buffer.append({'chat_id': chat_id, 'message': message})
+@sio.on('new_message_from_user')
+def message_event(data):
+    # gets called whe
+    print("I received")
+    print(data)
 
-    # Example: Check if image is needed (using hash) and fetch if missing
-    if 'image' in message:
-        image_hash = message['image']
-        # Check local cache or fetch from server if not found
+    #data = json.loads(data)
+    chat_id = data['chat_id']
+    chat = ChatHistory(tuple(json.loads(data["chat_history"])))
 
+    traverse_and_download_images(chat)
+    images = traverse_and_get_images(chat)
 
-def on_error(ws, error):
-    print(f"WebSocket error: {error}")
+    if len(images) == 0:
+        images = None
 
+    new_chat = LLM.respond(chat, images)
 
-def on_close(ws, close_status_code, close_msg):
-    print("WebSocket connection closed")
-
-
-def on_open(ws):
-    print("Connected to WebSocket")
-
-
-def start_websocket():
-    ws = websocket.WebSocketApp(WS_URL,
-                                #on_open=on_open,
-                                #on_message=on_message,
-                                #on_error=on_error,
-                                #on_close=on_close
-                                )
-    ws.run_forever()
+    send_message(chat_id, "assistant", new_chat.history[-1]["content"], "your_api_key")
 
 
-# Start WebSocket in a separate thread
-ws_thread = threading.Thread(target=start_websocket)
-ws_thread.start()
+def send_message(chat_id, role, message, api_key):
+    """Send a response message to the user via the home server, with optional image."""
+    # Prepare the form data
+    form_data = {
+        "chat_id": chat_id,
+        "api_key": api_key,
+        "role": role,
+        "message": message,
+    }
 
-# Start the message processing batch loop
-process_batch()
+    # Prepare the image data if an image is provided
+
+    response = requests.post(
+        f"http://{CONST_SERVER_IP}:5000/send_message",
+        data=form_data,
+        files=None
+    )
+    if response.status_code == 200:
+        print(f"Message sent to chat {chat_id}")
+    else:
+        print(f"Failed to send message to chat {chat_id}: {response.status_code}")
+
+# todo only keep N local images if needed idk
+"""
+def scrub_downloads():
+    list_of_files = os.listdir(CONST_DOWNLOAD_DIR)
+    paths = [f"{CONST_DOWNLOAD_DIR}/{x}" for x in list_of_files]
+
+    if len(paths) < 10:
+        return
+
+    #times = np.array(list(map(os.path.getctime, paths)))
+
+
+
+    #if len(list_of_files) == 25:
+    #    oldest_file = min(full_path, key=os.path.getctime)
+    #    os.remove(oldest_file)
+"""
+
+def traverse_and_download_images(chat_history):
+    images = chat_history.get_all_image_hashes()
+
+    def download_image_if_missing(image_hash):
+        """Downloads image from the server if it's missing locally."""
+        image_path = os.path.join(CONST_DOWNLOAD_DIR, f"{image_hash}")
+
+        if not os.path.exists(image_path):
+            print(f"Image {image_hash} not found locally. Downloading...")
+            response = requests.get(f"http://{CONST_SERVER_IP}:5000/get_image/{image_hash}")
+
+            if response.status_code == 200:
+                with open(image_path, "wb") as f:
+                    f.write(response.content)
+                print(f"Image {image_hash} downloaded and saved.")
+            else:
+                print(f"Failed to download image {image_hash}: {response.status_code}")
+        else:
+            print(f"Image {image_hash} already exists locally.")
+
+    for image in images:
+        download_image_if_missing(image)
+
+def traverse_and_get_images(chat_history):
+    images = chat_history.get_all_image_hashes()
+
+    images = [Image.open(f"{CONST_DOWNLOAD_DIR}/{image}") for image in images]
+    return images
+
+
+if __name__ == '__main__':
+    sio.wait()
+

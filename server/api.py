@@ -17,6 +17,14 @@ from typing import Dict, Tuple, Union
 
 from server.random_names import generate_name
 
+import sys
+import pathlib
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
+import common
+from common.chat_history import CHAT_ROLE, ChatHistory
+
+
+
 # Initialize Flask app
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -28,41 +36,6 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # Class and chat history definitions (reuse your existing classes)
 
-class CHAT_ROLE(Enum):
-    SYSTEM = 1
-    USER = 2
-    ASSISTANT = 3
-
-
-@dataclass
-class ChatHistory:
-    history: Tuple = tuple()
-
-    def replace(self, **kwargs):
-        return dataclasses.replace(self, **kwargs)
-
-    def add(self, role: Union[CHAT_ROLE, str], message, image=None):
-        if isinstance(role, CHAT_ROLE):
-            role = role.name
-
-        new_message = {"role": role, "content": message, "image": image}
-        new_history = (*self.history, new_message)
-        return self.replace(history=new_history)
-
-    def pack(self) -> str:
-        ret = []
-        for message in self.history:
-            ret.append(f"{message['role'].capitalize()}: {message['content']}")
-
-        ret = "\n".join(ret) + " Assistant:"
-        return ret
-
-    def pretty(self):
-        ret = []
-        for message in self.history:
-            ret.append(f"{message['role'].capitalize()}: {message['content']}")
-
-        return "\n\n".join(ret)
 
 
 # In-memory store for chat histories
@@ -140,6 +113,12 @@ def notify_new_message(chat_id):
 # Create a new chat
 @app.route('/create_chat', methods=['POST'])
 def create_chat():
+    data = request.form.to_dict()
+    api_key = data.get('api_key')
+    if not authenticate(api_key):
+        return jsonify({"error": "Unauthorized"}), 403
+
+
     chat_id = generate_name(chat_names())
     #chat_id = str(uuid4())
     chats[chat_id] = ChatHistory()
@@ -196,6 +175,11 @@ def get_chat(chat_id):
 # Delete a specific chat
 @app.route('/delete_chat/<chat_id>', methods=['DELETE'])
 def delete_chat(chat_id):
+    data = request.form.to_dict()
+    api_key = data.get('api_key')
+    if not authenticate(api_key):
+        return jsonify({"error": "Unauthorized"}), 403
+
     if chat_id not in chats:
         return jsonify({"error": "Chat not found"}), 404
 

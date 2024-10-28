@@ -51,3 +51,4 @@ class Olmo:
 
         chat = chat.add(CHAT_ROLE.ASSISTANT, generated_text)
         return chat
+

@@ -112,7 +112,16 @@
     }
 
     async function createChat() {
-        const response = await fetch(`${BASE_URL}/create_chat`, { method: 'POST' });
+        const apiKey = document.getElementById('api-key-input').value;
+        const formData = new FormData();
+        formData.append("api_key", apiKey);
+        const response = await fetch(`${BASE_URL}/create_chat`, { method: 'POST', body: formData });
+
+        if (!response.ok) {
+            alert("Failed to create chat. Check your API key or try again.");
+            return;
+        }
+
         const data = await response.json();
         currentChatId = data.chat_id;
 
@@ -127,9 +136,14 @@
         if (!currentChatId) return alert("Select a chat to delete.");
 
         const apiKey = document.getElementById('api-key-input').value;
+
+        const formData = new FormData();
+        formData.append("api_key", apiKey);
+
         const response = await fetch(`${BASE_URL}/delete_chat/${currentChatId}`, {
             method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${apiKey}` }
+            headers: { 'Authorization': `Bearer ${apiKey}` },
+            body: formData
         });
 
         if (response.ok) {
@@ -152,7 +166,7 @@
         messages.forEach(msg => {
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
-            messageElement.innerHTML = `<strong>${msg.role}:</strong> ${msg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}`;
+            messageElement.innerHTML = `<strong>${msg.role.toUpperCase()}:</strong> ${msg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}`;
 
             if (msg.content.includes("<point x") && msg.content.includes("</point>")) {
                 const img = document.createElement('img');
