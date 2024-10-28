@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Interface</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; }
+        #chat-container { width: 400px; max-width: 100%; border: 1px solid #ccc; padding: 10px; margin-top: 20px; }
+        #chat-messages { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; }
+        #message-form { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .message { margin-bottom: 8px; }
+        .message img { max-width: 100%; max-height: 150px; }
+    </style>
+</head>
+<body>
+
+<h1>Chatbot Interface</h1>
+<div id="chat-container">
+    <label for="api-key-input">API Key:</label>
+    <input type="text" id="api-key-input" placeholder="Enter your API key" required>
+
+    <select id="chat-select">
+        <option value="">Select a chat</option>
+    </select>
+    <button onclick="createChat()">Create New Chat</button>
+    <button onclick="deleteChat()">Delete Selected Chat</button>
+
+    <div id="chat-messages"></div>
+
+    <form id="message-form" onsubmit="sendMessage(event)">
+        <textarea id="message-input" rows="3" placeholder="Type your message..."></textarea>
+        <input type="file" id="image-input" accept="image/*">
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+
+<script>
+    const BASE_URL = ".";  // Replace with your server URL if not serving from Flask
+    let currentChatId = null;
+
+    async function loadChats() {
+        const response = await fetch(`${BASE_URL}/get_chats`);
+        const chats = await response.json();
+
+        const chatSelect = document.getElementById('chat-select');
+        chatSelect.innerHTML = '<option value="">Select a chat</option>';
+
+        chats.forEach(chatId => {
+            const option = document.createElement('option');
+            option.value = chatId;
+            option.textContent = chatId; // Display more readable names if server update is done
+            chatSelect.appendChild(option);
+        });
+
+        if (currentChatId) chatSelect.value = currentChatId;
+    }
+
+    async function createChat() {
+        const response = await fetch(`${BASE_URL}/create_chat`, { method: 'POST' });
+        const data = await response.json();
+        currentChatId = data.chat_id;
+
+        await loadChats();
+
+        // Automatically select and load the new chat
+        document.getElementById('chat-select').value = currentChatId;
+        loadChatMessages();
+    }
+
+    async function deleteChat() {
+        if (!currentChatId) return alert("Select a chat to delete.");
+
+        const apiKey = document.getElementById('api-key-input').value;
+        const response = await fetch(`${BASE_URL}/delete_chat/${currentChatId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${apiKey}` }
+        });
+
+        if (response.ok) {
+            currentChatId = null;
+            loadChats();
+            document.getElementById('chat-messages').innerHTML = '';
+        } else {
+            alert("Failed to delete chat. Check your API key or try again.");
+        }
+    }
+
+    async function loadChatMessages() {
+        if (!currentChatId) return;
+
+        const response = await fetch(`${BASE_URL}/get_chat/${currentChatId}`);
+        const messages = await response.json();
+        const chatMessages = document.getElementById('chat-messages');
+        chatMessages.innerHTML = '';
+
+        messages.forEach(msg => {
+            const messageElement = document.createElement('div');
+            messageElement.className = 'message';
+            messageElement.innerHTML = `<strong>${msg.role}:</strong> ${msg.content}`;
+
+            if (msg.image) {
+                const img = document.createElement('img');
+                img.src = `${BASE_URL}/get_image/${msg.image}`;
+                messageElement.appendChild(img);
+            }
+
+            chatMessages.appendChild(messageElement);
+        });
+
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendMessage(event) {
+        event.preventDefault();
+
+        const apiKey = document.getElementById('api-key-input').value;
+        const messageInput = document.getElementById('message-input');
+        const imageInput = document.getElementById('image-input');
+
+        if (!apiKey) return alert("API key is required to send messages.");
+
+        const formData = new FormData();
+        formData.append("chat_id", currentChatId);
+        formData.append("api_key", apiKey);
+        formData.append("role", "USER");
+        formData.append("message", messageInput.value);
+
+        if (imageInput.files.length > 0) {
+            formData.append("image", imageInput.files[0]);
+        }
+
+        await fetch(`${BASE_URL}/send_message`, {
+            method: 'POST',
+            body: formData
+        });
+
+        messageInput.value = '';
+        imageInput.value = null;
+        loadChatMessages();
+    }
+
+    document.getElementById('chat-select').addEventListener('change', (event) => {
+        currentChatId = event.target.value;
+        loadChatMessages();
+    });
+
+    // Create a chat on page load if no chats exist; otherwise, select the last chat
+    window.onload = async () => {
+        await loadChats();
+
+        const chatSelect = document.getElementById('chat-select');
+
+        if (chatSelect.options.length > 1) {  // More than the default "Select a chat" option
+            const lastChat = chatSelect.options[chatSelect.options.length - 1];
+            currentChatId = lastChat.value;
+            chatSelect.value = currentChatId;
+            loadChatMessages();
+        } else {
+            await createChat();
+        }
+    };
+
+
+</script>
+
+</body>
+</html>
