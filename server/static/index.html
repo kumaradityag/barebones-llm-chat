@@ -3,19 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Interface</title>
+    <title>Charlie Intelligence</title>
     <style>
-        body { font-family: Arial, sans-serif; display: flex; flex-direction: column; align-items: center; }
-        #chat-container { width: 400px; max-width: 100%; border: 1px solid #ccc; padding: 10px; margin-top: 20px; }
-        #chat-messages { height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; }
-        #message-form { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
-        .message { margin-bottom: 8px; }
-        .message img { max-width: 100%; max-height: 150px; }
-    </style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    h1 {
+        margin-bottom: 20px;
+    }
+
+    #chat-container {
+        width: 80vw;
+        height: 90vh;
+        border: 1px solid #ccc;
+        padding: 10px;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+    }
+
+    #chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    #message-form {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 10px;
+    }
+
+    .message {
+        margin-bottom: 8px;
+    }
+
+    .message img {
+        max-width: 100%;
+        max-height: 150px;
+    }
+
+    .image-container {
+        position: relative;
+        display: inline-block;
+    }
+
+    .point {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: deeppink;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+</style>
 </head>
 <body>
 
-<h1>Chatbot Interface</h1>
+<h1>Charlie Intelligence</h1>
 <div id="chat-container">
     <label for="api-key-input">API Key:</label>
     <input type="text" id="api-key-input" placeholder="Enter your API key" required>
@@ -98,7 +152,36 @@
         messages.forEach(msg => {
             const messageElement = document.createElement('div');
             messageElement.className = 'message';
-            messageElement.innerHTML = `<strong>${msg.role}:</strong> ${msg.content}`;
+            messageElement.innerHTML = `<strong>${msg.role}:</strong> ${msg.content.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}`;
+
+            if (msg.content.includes("<point x") && msg.content.includes("</point>")) {
+                const img = document.createElement('img');
+                const older_images = chatMessages.getElementsByTagName('img');
+                img.src = older_images[older_images.length-1].src;
+
+                const container = document.createElement("div");
+                container.classList.add("image-container");
+
+                        // Create the point element
+                const point = document.createElement('div');
+                point.classList.add('point');
+                point.title = msg.content.split('alt="')[1].split('">')[0];
+
+                const xPercentage = parseFloat(msg.content.split('<point x="')[1].split('"')[0]);
+                const yPercentage = parseFloat(msg.content.split(' y="')[1].split('" alt=')[0]);
+
+                console.log([xPercentage, yPercentage]);
+
+                // Position the point based on the provided percentages
+                point.style.left = `${xPercentage}%`;
+                point.style.top = `${yPercentage}%`;
+
+                // Add the point to the image container
+                container.appendChild(img)
+                messageElement.appendChild(container);
+                container.appendChild(point);
+
+            }
 
             if (msg.image) {
                 const img = document.createElement('img');
