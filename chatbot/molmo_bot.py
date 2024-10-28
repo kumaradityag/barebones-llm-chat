@@ -5,7 +5,11 @@ from transformers import AutoModelForCausalLM, AutoProcessor, GenerationConfig
 from PIL import Image
 import requests
 
-from common.chat_history import CHAT_ROLE
+import sys
+import pathlib
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
+import common
+from common.chat_history import CHAT_ROLE, ChatHistory
 
 
 class Olmo:
@@ -33,7 +37,8 @@ class Olmo:
             message_format=None
         )
         inputs = {k: v.to(self.model.device).unsqueeze(0) for k, v in inputs.items()}
-        inputs["images"] = inputs["images"].to(self.precision)
+        if "images" in inputs:
+            inputs["images"] = inputs["images"].to(self.precision)
 
         output = self.model.generate_from_batch(
             inputs,

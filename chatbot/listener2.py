@@ -9,6 +9,10 @@ import numpy as np
 import socketio
 import requests
 
+import sys
+import pathlib
+sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
+import common
 from common.chat_history import ChatHistory
 
 CONST_SERVER_IP = '127.0.0.1'
@@ -36,6 +40,9 @@ def message_event(data):
 
     traverse_and_download_images(chat)
     images = traverse_and_get_images(chat)
+
+    if len(images) == 0:
+        images = None
 
     new_chat = LLM.respond(chat, images)
 
