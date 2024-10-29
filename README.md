@@ -43,7 +43,7 @@ host the server there (probably at home because whatever schooling institution o
 corporation you are at probably won't allow you to have such a port, probably), and point the chatbot to the IP and port 
 that you are using.
 
-If you go with this option, you might need to uncomment the websocket found in `index.html`
+If you go with this option, you might need to do some changes to the way the BASE_URL is set in `index.html`
 
 # What LLMs are supported?
 
