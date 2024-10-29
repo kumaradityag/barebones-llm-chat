@@ -85,6 +85,6 @@ If you need to do special stuff with your model, or if you want to add a weird A
 
 # License
 
-This code is provided with no guarantees of any kind, and should be used at your own risk. This code is released under an MIT license, but you must cite this software if you use it as part of a piece of reseach publications.
+This code is provided with no guarantees of any kind, and should be used at your own risk. This code is released under an MIT license, with the specificity that you must cite this software if you use it as part of the code for a reseach publication.
 
 The underlying Molmo LLM has its own license, which you must ackowledge and contend with, if you use Molmo as the backend LLM. See *https://molmo.allenai.org/blog*
