@@ -11,13 +11,15 @@ from PIL import Image
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 from common.chat_history import ChatHistory
 
-CONST_SERVER_IP = '127.0.0.1'
+secrets = json.load(open(pathlib.Path(__file__).parent.parent / "secrets" / 'secrets.json'))
+CONST_SERVER_IP = secrets["server_ip"]
+api_key = secrets["valid_api_keys"][0]
 
 sio = socketio.Client()
-sio.connect(f'http://{CONST_SERVER_IP}:5000')
+sio.connect(f'http://{CONST_SERVER_IP}:{secrets["server_port"]}')
 
 CONST_DOWNLOADS_TO_KEEP = 10
-CONST_DOWNLOAD_DIR = "./downloads"
+CONST_DOWNLOAD_DIR = secrets["listener_download_dir"]   #"./downloads"
 shutil.rmtree(CONST_DOWNLOAD_DIR, ignore_errors=True)   # todo maybe not wipe downloads every init
 os.makedirs(CONST_DOWNLOAD_DIR, exist_ok=True)
 
@@ -58,7 +60,7 @@ def send_message(chat_id, role, message, api_key):
     # Prepare the image data if an image is provided
 
     response = requests.post(
-        f"http://{CONST_SERVER_IP}:5000/send_message",
+        f"http://{CONST_SERVER_IP}:{secrets['server_port']}/send_message",
         data=form_data,
         files=None
     )
@@ -94,7 +96,7 @@ def traverse_and_download_images(chat_history):
 
         if not os.path.exists(image_path):
             print(f"Image {image_hash} not found locally. Downloading...")
-            response = requests.get(f"http://{CONST_SERVER_IP}:5000/get_image/{image_hash}")
+            response = requests.get(f"http://{CONST_SERVER_IP}:{secrets['server_port']}/get_image/{image_hash}")
 
             if response.status_code == 200:
                 with open(image_path, "wb") as f:

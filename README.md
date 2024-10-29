@@ -14,7 +14,7 @@ This is a simplistic interface for hosting chatbots. It comes with the following
     - Methods to download the images stored in the server.
 - Python interface
     - An interface for python
-    - A WIP CLI interface (but I gave up because ChatGPT can't properly generate this stuff. I'm not about to code that stuff by hand lol.)
+    - A work-in-progress CLI interface. (But I gave up because ChatGPT can't properly generate this stuff. I'm not about to code that stuff by hand lol. If you can help finish it (i.e. know better prompting techniques for python Curses let me know.))
 
 # How do I use it?
 

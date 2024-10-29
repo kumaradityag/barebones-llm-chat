@@ -31,7 +31,8 @@ app = Flask(__name__)
 socketio = SocketIO(app)
 
 # Configure the image storage directory
-UPLOAD_FOLDER = './uploads'
+secrets = json.load(open(pathlib.Path(__file__).parent.parent / "secrets" / 'secrets.json'))
+UPLOAD_FOLDER = secrets["server_upload_dir"] # './uploads'
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
@@ -46,7 +47,7 @@ def chat_names():
     return list(chats.keys())
 
 
-CONST_CHAT_SAVE_PATH = "./saved_chat.json"
+CONST_CHAT_SAVE_PATH = secrets["server_save_chat_path"]
 
 def graceful_bootup():
     global chats
@@ -73,13 +74,8 @@ signal.signal(signal.SIGINT, graceful_shutdown)
 # Also ensure cleanup happens when the process exits
 #atexit.register(functools.partial(graceful_shutdown, None, None))
 
-# API key authentication (simple check for now)
-API_KEY = "your_api_key"
-
-
-
 def authenticate(api_key):
-    return api_key == API_KEY
+    return api_key in secrets["valid_api_keys"]
 
 
 # WebSocket route to notify chatbot
