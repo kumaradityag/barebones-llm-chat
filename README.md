@@ -1,5 +1,8 @@
 # What even is this?
 
+![image](https://github.com/user-attachments/assets/a342de4a-a3f3-4df0-aa3b-e0d3c75e2ab5)
+
+
 This is a simplistic interface for hosting chatbots. It comes with the following components:
 
 - "Home server"
