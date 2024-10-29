@@ -85,6 +85,14 @@
     <form id="message-form" onsubmit="sendMessage(event)">
         <textarea id="message-input" rows="3" placeholder="Type your message..."></textarea>
         <input type="file" id="image-input" accept="image/*">
+
+        <!-- Role selector dropdown
+        <label for="role-select">Role:</label>-->
+        <select id="role-select">
+            <option value="USER">USER</option>
+            <option value="SYSTEM">SYSTEM</option>
+        </select>
+
         <button type="submit">Send Message</button>
     </form>
 </div>
@@ -215,13 +223,15 @@
         const apiKey = document.getElementById('api-key-input').value;
         const messageInput = document.getElementById('message-input');
         const imageInput = document.getElementById('image-input');
+        const role = document.getElementById('role-select').value;  // Get the selected role
+
 
         if (!apiKey) return alert("API key is required to send messages.");
 
         const formData = new FormData();
         formData.append("chat_id", currentChatId);
         formData.append("api_key", apiKey);
-        formData.append("role", "USER");
+        formData.append("role", role); // formData.append("role", "USER");
         formData.append("message", messageInput.value);
 
         if (imageInput.files.length > 0) {

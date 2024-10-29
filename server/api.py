@@ -22,6 +22,7 @@ import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 import common
 from common.chat_history import CHAT_ROLE, ChatHistory
+from common.image_handling import save_image
 
 
 
@@ -79,25 +80,6 @@ API_KEY = "your_api_key"
 
 def authenticate(api_key):
     return api_key == API_KEY
-
-
-# Helper function to hash image content
-def hash_image(image_content):
-    return hashlib.sha256(image_content).hexdigest()
-
-
-# Save image to the server and return its hash
-def save_image(image_file):
-    image_content = image_file.read()
-    image_hash = hash_image(image_content)
-    image_path = os.path.join(UPLOAD_FOLDER, image_hash)
-
-    if not os.path.exists(image_path):
-        # Save the image if it doesn't exist yet
-        with open(image_path, 'wb') as f:
-            f.write(image_content)
-
-    return image_hash
 
 
 # WebSocket route to notify chatbot
@@ -161,6 +143,32 @@ def send_message():
         socketio.emit('new_message_from_assistant', {"chat_id": chat_id})
 
     return jsonify({"status": "Message added"}), 200
+
+@app.route('/send_history', methods=['POST'])
+def send_history():
+    data = request.form.to_dict()
+    chat_id = data.get('chat_id')
+    api_key = data.get('api_key')
+    chat_history = ChatHistory(tuple(json.loads(data.get('chat_history'))))
+
+    if not authenticate(api_key):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    chats[chat_id] = chat_history
+
+    images = request.files #.getall() # {hash: bytes}
+    for image_hash, image in images.items():
+        if os.path.exists(os.path.join(UPLOAD_FOLDER, image_hash)):
+            continue
+        else:
+            save_image(image, image_hash)
+
+
+    role = chat_history.history[-1]["role"]
+    if role.lower() == CHAT_ROLE.USER.name.lower():
+        notify_new_message(chat_id)
+
+    return jsonify({"status": "Chat History imported, assistant notified"}), 200
 
 
 # Get the history of a specific chat (returns image hashes)

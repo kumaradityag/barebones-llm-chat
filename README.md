@@ -12,6 +12,9 @@ This is a simplistic interface for hosting chatbots. It comes with the following
     - A socketio listener that listens for message events from the "Home server"
     - A class that wraps around huggingface LLMs to do multimodal chat completion.
     - Methods to download the images stored in the server.
+- Python interface
+    - An interface for python
+    - A WIP CLI interface (but I gave up because ChatGPT can't properly generate this stuff. I'm not about to code that stuff by hand lol.)
 
 # How do I use it?
 
