@@ -1,6 +1,8 @@
 # What even is this?
 
-![image](https://github.com/user-attachments/assets/a342de4a-a3f3-4df0-aa3b-e0d3c75e2ab5)
+
+![image](https://github.com/user-attachments/assets/1e9c3a2f-7ea5-4ad4-bb42-46d35203f7c1)
+*LLM backend based on https://molmo.allenai.org/blog*
 
 
 This is a simplistic interface for hosting chatbots. It comes with the following components:
@@ -58,3 +60,21 @@ So it's ideal for research.
 
 If you need to do special stuff with your model, or if you want to add a weird API with multimodality or whatever, then you might want to use this.
 
+# Citing
+
+@software{barebones-llm,
+  author = {Charlie Gauthier},
+  title = {Barebones LLM Chat},
+  url = {[http://github.com/google/brax}](https://github.com/Velythyl/barebones-llm),
+  version = {0.0.0},
+  year = {2024},
+}
+
+@article{Deitke2024MolmoAP,
+  title={Molmo and PixMo: Open Weights and Open Data for State-of-the-Art Multimodal Models},
+  author={Matt Deitke and Christopher Clark and Sangho Lee and Rohun Tripathi and Yue Yang and Jae Sung Park and Mohammadreza Salehi and Niklas Muennighoff and Kyle Lo and Luca Soldaini and Jiasen Lu and Taira Anderson and Erin Bransom and Kiana Ehsani and Huong Ngo and YenSung Chen and Ajay Patel and Mark Yatskar and Christopher Callison-Burch and Andrew Head and Rose Hendrix and Favyen Bastani and Eli VanderBilt and Nathan Lambert and Yvonne Chou and Arnavi Chheda and Jenna Sparks and Sam Skjonsberg and Michael Schmitz and Aaron Sarnat and Byron Bischoff and Pete Walsh and Christopher Newell and Piper Wolters and Tanmay Gupta and Kuo-Hao Zeng and Jon Borchardt and Dirk Groeneveld and Jennifer Dumas and Crystal Nam and Sophie Lebrecht and Caitlin Wittlif and Carissa Schoenick and Oscar Michel and Ranjay Krishna and Luca Weihs and Noah A. Smith and Hanna Hajishirzi and Ross Girshick and Ali Farhadi and Aniruddha Kembhavi},
+  journal={ArXiv},
+  year={2024},
+  volume={abs/2409.17146},
+  url={https://api.semanticscholar.org/CorpusID:272880654}
+}
