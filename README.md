@@ -38,7 +38,20 @@ host the server there (probably at home because whatever schooling institution o
 corporation you are at probably won't allow you to have such a port, probably), and point the chatbot to the IP and port 
 that you are using.
 
+If you go with this option, you might need to uncomment the websocket found in `index.html`
+
 # What LLMs are supported?
 
 Only `Molmo` lol. But the class it uses (`molmo_bot.py`) is very generic so it should be easy to add new LLMs, if need to. PR's welcome.
+
+# Is this secure? Does it support HTTPS? Is this usable in production?
+
+No 
+
+# Why this instead of Gradio/some other thing?
+
+This allows very low level control of the LLM, all in non-obfuscated code.
+So it's ideal for research.
+
+If you need to do special stuff with your model, or if you want to add a weird API with multimodality or whatever, then you might want to use this.
 
