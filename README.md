@@ -2,7 +2,7 @@
 
 
 ![image](https://github.com/user-attachments/assets/7fec763f-288b-4e9e-a015-b2302865a086)
-*Here pictured: the human-readable interface. LLM backend based on https://molmo.allenai.org/blog *
+*Here pictured: the human-readable interface. LLM backend based on https://molmo.allenai.org/blog*
 
 
 This is a simplistic interface for hosting chatbots. It comes with the following components:
