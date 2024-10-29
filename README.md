@@ -36,6 +36,8 @@ This makes it so queries to `localhost:5000` on the node actually go to your loc
 
 Then, just run `api.py` on your computer and open up `index.py` in your browser.
 
+In this way, you could also just host everything on the same node, without the need for tunnels. You could run the LLM, the API, as well as some other in-training agent that now has access to the LLM.
+
 ### Second option: port forwarding
 
 Otherwise, you need to open a port in your local network, 
