@@ -1,8 +1,8 @@
 # What even is this?
 
 
-![image](https://github.com/user-attachments/assets/1e9c3a2f-7ea5-4ad4-bb42-46d35203f7c1)
-*LLM backend based on https://molmo.allenai.org/blog*
+![image](https://github.com/user-attachments/assets/7fec763f-288b-4e9e-a015-b2302865a086)
+*Here pictured: the human-readable interface. LLM backend based on https://molmo.allenai.org/blog *
 
 
 This is a simplistic interface for hosting chatbots. It comes with the following components:
