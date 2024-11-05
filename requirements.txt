@@ -1,7 +1,0 @@
-numpy
-python-socketio[client]
-flask_socketio
-requests
-flask
-
-#-e git+https://github.com/allenai/OLMo.git
