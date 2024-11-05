@@ -15,8 +15,12 @@ secrets = json.load(open(pathlib.Path(__file__).parent.parent / "secrets" / 'sec
 CONST_SERVER_IP = secrets["server_ip"]
 api_key = secrets["valid_api_keys"][0]
 
-sio = socketio.Client()
-sio.connect(f'http://{CONST_SERVER_IP}:{secrets["server_port"]}')
+try:
+    sio = socketio.Client()
+    sio.connect(f'http://{CONST_SERVER_IP}:{secrets["server_port"]}')
+except Exception as e:
+    print("Could not connect to the API. Is it running? Are you sure you opened or tunnel'd a port?", file=sys.stderr)
+    raise e
 
 CONST_DOWNLOADS_TO_KEEP = 10
 CONST_DOWNLOAD_DIR = secrets["listener_download_dir"]   #"./downloads"
