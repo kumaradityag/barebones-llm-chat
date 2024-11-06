@@ -19,11 +19,11 @@ from typing import Dict, Tuple, Union
 import sys
 import pathlib
 
-from src.server.random_names import generate_name
+from barebonesllmchat.server.random_names import generate_name
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
-from src.common.chat_history import CHAT_ROLE, ChatHistory
-from src.common.image_handling import save_image
+from barebonesllmchat.common.chat_history import CHAT_ROLE, ChatHistory
+from barebonesllmchat.common.image_handling import save_image
 
 
 

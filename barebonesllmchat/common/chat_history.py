@@ -7,7 +7,7 @@ from typing import List, Tuple, Union, Dict, Any
 
 from PIL import Image
 
-from src.common.image_handling import hash_image
+from barebonesllmchat.common.image_handling import hash_image
 
 
 # class syntax
