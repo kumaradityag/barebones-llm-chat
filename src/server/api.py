@@ -15,14 +15,15 @@ from enum import Enum
 import dataclasses
 from typing import Dict, Tuple, Union
 
-from server.random_names import generate_name
 
 import sys
 import pathlib
+
+from src.server.random_names import generate_name
+
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
-import common
-from common.chat_history import CHAT_ROLE, ChatHistory
-from common.image_handling import save_image
+from src.common.chat_history import CHAT_ROLE, ChatHistory
+from src.common.image_handling import save_image
 
 
 

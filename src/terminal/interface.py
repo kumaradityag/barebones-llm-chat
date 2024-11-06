@@ -6,8 +6,7 @@ import json
 import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
-import common
-from common.chat_history import CHAT_ROLE, ChatHistory, ChatHistoryWithImages
+from src.common.chat_history import CHAT_ROLE, ChatHistory, ChatHistoryWithImages
 
 class ChatbotClient:
     def __init__(self, base_url, api_key, use_websocket=True):
