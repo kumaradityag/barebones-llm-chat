@@ -65,12 +65,70 @@
             border-radius: 50%;
             transform: translate(-50%, -50%);
         }
+
+    <!-- webcam... -->
+
+        #mainButton {
+        padding: 10px 20px;
+        font-size: 16px;
+    }
+    #videoOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        display: none;
+        z-index:99999;
+    }
+    video {
+        width: 80%;
+        max-width: 600px;
+        border: 2px solid #fff;
+        border-radius: 10px;
+    }
+    #overlayButtons {
+        margin-top: 20px;
+    }
+    .overlayButton {
+        padding: 10px 20px;
+        font-size: 16px;
+        margin: 0 10px;
+    }
+    #photo {
+        margin-top: 20px;
+        max-width: 80%;
+    }
+    .sideBySide {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+
 </style>
 </head>
 <body>
 
 <h1>Barebones LLM Chat</h1>
 <div id="chat-container">
+
+    <!-- Video Overlay -->
+        <div id="videoOverlay">
+            <video id="webcam" autoplay playsinline></video>
+            <div id="overlayButtons">
+                <button id="captureButton" class="overlayButton">Capture Photo</button>
+                <button id="closeButton" class="overlayButton">Close</button>
+            </div>
+        </div>
+
     <label for="api-key-input">API Key:</label>
     <input type="text" id="api-key-input" placeholder="Enter your API key" required>
 
@@ -84,7 +142,13 @@
 
     <form id="message-form" onsubmit="sendMessage(event)">
         <textarea id="message-input" rows="3" placeholder="Type your message..."></textarea>
-        <input type="file" id="image-input" accept="image/*">
+        <div class="sideBySide">
+            <input type="file" id="image-input" accept="image/*">
+
+        <button type="button" id="mainButton">Take Photo</button>
+
+        </div>
+
 
         <!-- Role selector dropdown
         <label for="role-select">Role:</label>-->
@@ -282,6 +346,79 @@
             }
         });
 
+    <!-- webcam -->
+
+
+    const mainButton = document.getElementById('mainButton');
+    const videoOverlay = document.getElementById('videoOverlay');
+    const video = document.getElementById('webcam');
+    const captureButton = document.getElementById('captureButton');
+    const closeButton = document.getElementById('closeButton');
+    const photo = document.getElementById('photo');
+    const canvas = document.createElement('canvas');
+    let stream;
+
+    // Function to start the webcam
+    async function startWebcam() {
+        try {
+            let features = {
+                    audio: true,
+                    video: {
+                        width: { ideal: 1800 },
+                        height: { ideal: 900 }
+                    }
+                };
+
+            stream = await navigator.mediaDevices.getUserMedia(features);
+            video.srcObject = stream;
+        } catch (error) {
+            console.error("Error accessing the webcam:", error);
+        }
+    }
+
+    // Open the video overlay
+    mainButton.addEventListener('click', (e) => {
+        videoOverlay.style.display = 'flex';
+        startWebcam();
+        e.stopPropagation();
+    });
+
+    // Capture the photo and set it as the file input value
+    captureButton.addEventListener('click', async () => {
+        const context = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        // Convert canvas to Blob
+        canvas.toBlob(async (blob) => {
+            const file = new File([blob], 'webcam_photo.png', { type: 'image/png' });
+
+            // Use a DataTransfer object to set the file input value
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+
+            const imageInput = document.getElementById('image-input');
+            imageInput.files = dataTransfer.files;
+
+            // Hide the overlay and stop the webcam
+            stopWebcam();
+            videoOverlay.style.display = 'none';
+        }, 'image/png');
+    });
+
+    // Close the video overlay
+    closeButton.addEventListener('click', () => {
+        stopWebcam();
+        videoOverlay.style.display = 'none';
+    });
+
+    // Function to stop the webcam
+    function stopWebcam() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+    }
 
 </script>
 
