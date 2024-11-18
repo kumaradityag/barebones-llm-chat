@@ -3,9 +3,14 @@ import os
 import pathlib
 import shutil
 import sys
-
+import traceback
 import requests
-import socketio
+try:
+    import socketio
+except Exception:
+    print("Could not import socketio. Are you sure it's installed? Are you sure you activated your venv/conda?", file=sys.stderr)
+    traceback.format_exc()
+    exit(1)
 from PIL import Image
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
