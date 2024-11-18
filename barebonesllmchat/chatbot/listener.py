@@ -40,13 +40,15 @@ def message_event(data):
     chat_id = data['chat_id']
     chat = ChatHistory(tuple(json.loads(data["chat_history"])))
 
+    generation_settings = data.get('generation_settings', {})
+
     traverse_and_download_images(chat)
     images = traverse_and_get_images(chat)
 
     if len(images) == 0:
         images = None
 
-    new_chat = LLM.respond(chat, images)
+    new_chat = LLM.respond(chat, images, generation_settings=generation_settings)
 
     send_message(chat_id, "assistant", new_chat.history[-1]["content"], "your_api_key")
 

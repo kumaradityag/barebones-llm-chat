@@ -84,10 +84,12 @@ def authenticate(api_key):
 def handle_connect():
     print("Chatbot connected to WebSocket")
 
-def notify_new_message(chat_id):
+def notify_new_message(chat_id, generation_settings):
     # Broadcasts to all connected WebSocket clients (e.g., the chatbot)
     jsonned = json.dumps(chats[chat_id].history)
-    socketio.emit('new_message_from_user', {'chat_id': chat_id, 'chat_history': jsonned})
+    generation_settings = json.dumps(generation_settings)
+
+    socketio.emit('new_message_from_user', {'chat_id': chat_id, 'chat_history': jsonned, "generation_settings": generation_settings})
 
 # Create a new chat
 @app.route('/create_chat', methods=['POST'])
@@ -121,6 +123,8 @@ def send_message():
     message = data.get('message')
     image = request.files.get('image')
 
+    generation_settings = data.get("generation_settings", {})
+
     if not authenticate(api_key):
         return jsonify({"error": "Unauthorized"}), 403
 
@@ -136,7 +140,7 @@ def send_message():
     chats[chat_id] = chats[chat_id].add(role, message, image=image_hash)
 
     if role.lower() == CHAT_ROLE.USER.name.lower():
-        notify_new_message(chat_id)
+        notify_new_message(chat_id, generation_settings)
     elif role.lower() == CHAT_ROLE.ASSISTANT.name.lower():
         socketio.emit('new_message_from_assistant', {"chat_id": chat_id})
 
@@ -148,6 +152,7 @@ def send_history():
     chat_id = data.get('chat_id')
     api_key = data.get('api_key')
     chat_history = ChatHistory(tuple(json.loads(data.get('chat_history'))))
+    generation_settings = data.get("generation_settings", {})
 
     if not authenticate(api_key):
         return jsonify({"error": "Unauthorized"}), 403
@@ -168,7 +173,7 @@ def send_history():
 
     role = chat_history.history[-1]["role"]
     if role.lower() == CHAT_ROLE.USER.name.lower():
-        notify_new_message(chat_id)
+        notify_new_message(chat_id, generation_settings)
 
     return jsonify({"status": "Chat History imported, assistant notified"}), 200
 
