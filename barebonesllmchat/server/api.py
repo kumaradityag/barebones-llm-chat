@@ -175,8 +175,8 @@ def send_history():
 
 
     role = chat_history.history[-1]["role"]
-    if role.lower() == CHAT_ROLE.USER.name.lower():
-        notify_new_message(chat_id, generation_settings)
+    assert role.lower() in [CHAT_ROLE.USER.name.lower(), CHAT_ROLE.SYSTEM.name.lower()]
+    notify_new_message(chat_id, generation_settings)
 
     return jsonify({"status": "Chat History imported, assistant notified"}), 200
 

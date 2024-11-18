@@ -8,6 +8,9 @@ import requests
 
 import sys
 import pathlib
+
+from barebonesllmchat.chatbot.bots.bot import _Bot
+
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 from barebonesllmchat.common.chat_history import CHAT_ROLE, ChatHistory
 
@@ -21,8 +24,10 @@ class DefaultOlmoSettings:
     def replace(self, **kwargs):
         return dataclasses.replace(self, **kwargs)
 
-class Olmo:
+class Molmo(_Bot):
     def __init__(self, model_string='allenai/Molmo-7B-D-0924', precision=torch.bfloat16):
+        super().__init__(model_string, precision)
+
         self.processor = AutoProcessor.from_pretrained(
             model_string,
             trust_remote_code=True,

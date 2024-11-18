@@ -5,6 +5,8 @@ import shutil
 import sys
 import traceback
 import requests
+
+
 try:
     import socketio
 except Exception as e:
@@ -31,8 +33,12 @@ CONST_DOWNLOAD_DIR = secrets["listener_download_dir"]   #"./downloads"
 shutil.rmtree(CONST_DOWNLOAD_DIR, ignore_errors=True)   # todo maybe not wipe downloads every init
 os.makedirs(CONST_DOWNLOAD_DIR, exist_ok=True)
 
-from barebonesllmchat.chatbot.molmo_bot import Olmo
+
+from barebonesllmchat.chatbot.bots.molmo_bot import Molmo
+from barebonesllmchat.chatbot.bots.olmo_bot import Olmo
 LLM = Olmo()
+
+
 
 @sio.on('new_message_from_user')
 def message_event(data):
