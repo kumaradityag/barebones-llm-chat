@@ -112,6 +112,8 @@ def create_chat():
 def get_chats():
     return jsonify(list(chats.keys()))
 
+def notify_client_got_message(chat_id):
+    socketio.emit('new_message_from_assistant', {"chat_id": chat_id})
 
 # Send a message to a chat, including image handling
 @app.route('/send_message', methods=['POST'])
@@ -142,7 +144,7 @@ def send_message():
     if role.lower() == CHAT_ROLE.USER.name.lower():
         notify_new_message(chat_id, generation_settings)
     elif role.lower() == CHAT_ROLE.ASSISTANT.name.lower():
-        socketio.emit('new_message_from_assistant', {"chat_id": chat_id})
+        notify_client_got_message(chat_id)
 
     return jsonify({"status": "Message added"}), 200
 
@@ -160,6 +162,7 @@ def send_history():
     chats[chat_id] = chat_history
 
     if len(chat_history.history) == 0:
+        notify_client_got_message(chat_id)
         return jsonify({"status": "Chat History imported, assistant NOT notified because history len is 0"}), 200
 
 

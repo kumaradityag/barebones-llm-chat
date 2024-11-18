@@ -1,3 +1,5 @@
+import time
+from datetime import datetime
 from time import sleep
 from typing import Union
 
@@ -94,12 +96,28 @@ class ChatbotClient:
         return chat_id
 
     def _resolve_phantom_chat_name(self):
-        if self.send_history_increment_chatname:
-            chat_id = f"{self.send_history_base_chatname} ({self.send_history_index})"
-            self.send_history_index += 1
-        else:
-            chat_id = f"{self.send_history_base_chatname}"
-        return chat_id
+        def gen():
+            if self.send_history_increment_chatname:
+                tentative_chat_name = f"{self.send_history_base_chatname} ({self.send_history_index})"
+                self.send_history_index += 1
+            else:
+                tentative_chat_name = f"{self.send_history_base_chatname}"
+            return tentative_chat_name
+
+        tentative_chat_name = gen()
+
+        chats = self.get_chats()
+        if tentative_chat_name not in chats:
+            return tentative_chat_name
+
+        # tentative chat name is in chats
+        prefix = self.send_history_base_chatname
+
+        chats = list(filter(lambda x: prefix in x, chats))
+        maxindex = max(list(map(lambda x: int(x.split(f"{prefix} (")[1].split(")")[0]), chats)))
+        self.send_history_index = maxindex + 1
+
+        return gen()
 
 
     def send_history(self, chat_id: Union[None, str], chat_history_maybe_with_images: Union[ChatHistoryWithImages, ChatHistory], generation_settings={}, blocking=True):
@@ -132,31 +150,48 @@ class ChatbotClient:
 
         return chat_id
 
-    def wait_for_chat_ready(self, chat_id):
+    def wait_for_chat_ready(self, chat_id, max_timeout=None):
+        # is this the right approach? no
+        # do i love wasting CPU cycles? SO MUCH
+
+        start_time = datetime.now()
+
         while True:
             if self.chat_readiness[chat_id] == False:
                 sleep(0.1)
             else:
                 break
 
+            if max_timeout is None:
+                continue
+
+            if (datetime.now() - start_time).total_seconds() >= max_timeout:
+                raise TimeoutError
+
 # Usage example
 if __name__ == "__main__":
     client = ChatbotClient("http://127.0.0.1:5000", "your_api_key")
 
+    chat_id = client.send_history(None,
+                                  ChatHistory().add(CHAT_ROLE.USER, "Bonjour baguette!"),
+                                  generation_settings={"max_new_tokens": 512, "temperature": 0.0}
+                                  )  # chat_history_with_images)
+
+    print(chat_id)
+    print(client.get_chat_messages(chat_id).pretty())
+    exit()
+
+
     chat_id = client.send_message(
-        "this is a new chat.",
+        None,
         "Ignore any images. Please tell me how to go from point A to point B.",
-        generation_settings={"max_new_tokens": 512, "temperature": 0.0},
+        generation_settings={"max_new_tokens": 100, "temperature": 0.0},
         blocking=True)
 
     print(client.get_chat_messages(chat_id).pretty())
     exit()
 
-    chat_id = client.send_history(None,
-                                  ChatHistory().add(CHAT_ROLE.USER, "Bonjour baguette!"))  # chat_history_with_images)
 
-    print(chat_id)
-    print(client.get_chat_messages(chat_id).pretty())
 
     chat_id = client.create_chat()
     client.send_message(chat_id, "Hello from the Python client!", blocking=False)
