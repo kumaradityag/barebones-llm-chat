@@ -50,7 +50,10 @@ def message_event(data):
     chat_id = data['chat_id']
     chat = ChatHistory(tuple(json.loads(data["chat_history"])))
 
-    generation_settings = data.get('generation_settings', {})
+    generation_settings = json.loads(data.get('generation_settings', json.dumps({})))
+    if not isinstance(generation_settings, dict):
+        generation_settings = json.loads(generation_settings)
+        assert isinstance(generation_settings, dict), "Why does this happen :( the settings is not a dict"
 
     traverse_and_download_images(chat)
     images = traverse_and_get_images(chat)

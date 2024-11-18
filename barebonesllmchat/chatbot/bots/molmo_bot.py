@@ -14,12 +14,11 @@ from barebonesllmchat.chatbot.bots.bot import _Bot
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 from barebonesllmchat.common.chat_history import CHAT_ROLE, ChatHistory
 
-from dataclasses import dataclass
 
 @dataclass
 class DefaultOlmoSettings:
-    max_new_tokens=512
-    temperature=1.0
+    max_new_tokens: int =512
+    temperature: float =1.0
 
     def replace(self, **kwargs):
         return dataclasses.replace(self, **kwargs)
@@ -46,15 +45,15 @@ class Molmo(_Bot):
 
 
     def respond(self, chat, images=None, generation_settings=None):
-        if generation_settings is None:
-            generation_settings = {**DefaultOlmoSettings()}
-        else:
-            generation_settings = DefaultOlmoSettings().replace(**generation_settings)
+        _generation_settings = vars(DefaultOlmoSettings())
+        if generation_settings is not None:
+            _generation_settings.update(**generation_settings)
+        del generation_settings
 
         print()
         print("-----")
         print("Generating with following settings:")
-        print(generation_settings)
+        print(_generation_settings)
         print("-----")
         print()
 
@@ -69,7 +68,7 @@ class Molmo(_Bot):
 
         output = self.model.generate_from_batch(
             inputs,
-            GenerationConfig(**generation_settings, stop_strings="<|endoftext|>"),
+            GenerationConfig(**_generation_settings, stop_strings="<|endoftext|>"),
             tokenizer=self.processor.tokenizer
         )
 
