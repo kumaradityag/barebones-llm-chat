@@ -67,7 +67,7 @@ class ChatbotClient:
         response.raise_for_status()
         return ChatHistory(tuple(response.json()))
 
-    def send_message(self, chat_id: Union[None, str], content, role="USER", image_path=None, blocking=True) -> str:
+    def send_message(self, chat_id: Union[None, str], content, generation_settings={}, role="USER", image_path=None, blocking=True) -> str:
         if chat_id is None or chat_id not in list(self.get_chats()):
             chat_id = self.send_history(chat_id, ChatHistory(), blocking=True)  # creates a chat with the resolved name
 
@@ -75,7 +75,8 @@ class ChatbotClient:
             "chat_id": chat_id,
             "api_key": self.api_key,
             "role": role,
-            "message": content
+            "message": content,
+            "generation_settings": json.dumps(generation_settings),
         }
 
         files = {}
@@ -101,7 +102,7 @@ class ChatbotClient:
         return chat_id
 
 
-    def send_history(self, chat_id: Union[None, str], chat_history_maybe_with_images: Union[ChatHistoryWithImages, ChatHistory], blocking=True):
+    def send_history(self, chat_id: Union[None, str], chat_history_maybe_with_images: Union[ChatHistoryWithImages, ChatHistory], generation_settings={}, blocking=True):
         if chat_id is None:
             chat_id = self._resolve_phantom_chat_name()
 
@@ -118,6 +119,7 @@ class ChatbotClient:
             "chat_id": chat_id,
             "api_key": self.api_key,
             "chat_history": json.dumps(chat_history_data),
+            "generation_settings": json.dumps(generation_settings)
         }
 
         self.chat_readiness[chat_id] = False
@@ -141,7 +143,11 @@ class ChatbotClient:
 if __name__ == "__main__":
     client = ChatbotClient("http://127.0.0.1:5000", "your_api_key")
 
-    chat_id = client.send_message("this is a new chat.", "Ignore any images. Please tell me how to go from point A to point B.", blocking=True)
+    chat_id = client.send_message(
+        "this is a new chat.",
+        "Ignore any images. Please tell me how to go from point A to point B.",
+        generation_settings={"max_new_tokens": 512, "temperature": 0.0},
+        blocking=True)
 
     print(client.get_chat_messages(chat_id).pretty())
     exit()
