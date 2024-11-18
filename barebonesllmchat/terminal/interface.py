@@ -1,4 +1,5 @@
 from time import sleep
+from typing import Union
 
 import requests
 import json
@@ -9,7 +10,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
 from barebonesllmchat.common.chat_history import CHAT_ROLE, ChatHistory, ChatHistoryWithImages
 
 class ChatbotClient:
-    def __init__(self, base_url, api_key, use_websocket=True):
+    def __init__(self, base_url, api_key, use_websocket=True, send_history_base_chatname="new chat!", send_history_increment_chatname=True):
         self.base_url = base_url
         self.api_key = api_key
 
@@ -29,6 +30,12 @@ class ChatbotClient:
 
             sio.connect(f"{self.base_url}")
             self.sio = sio
+
+        self.send_history_base_chatname = send_history_base_chatname
+        self.send_history_increment_chatname = send_history_increment_chatname
+        self.send_history_index = 0
+
+
     def set_api_key(self, api_key):
         self.api_key = api_key
 
@@ -60,8 +67,9 @@ class ChatbotClient:
         response.raise_for_status()
         return ChatHistory(tuple(response.json()))
 
-    def send_message(self, chat_id, content, role="USER", image_path=None, blocking=True):
-        chat_id = chat_id
+    def send_message(self, chat_id: Union[None, str], content, role="USER", image_path=None, blocking=True) -> str:
+        if chat_id is None or chat_id not in list(self.get_chats()):
+            chat_id = self.send_history(chat_id, ChatHistory(), blocking=True)  # creates a chat with the resolved name
 
         data = {
             "chat_id": chat_id,
@@ -82,20 +90,45 @@ class ChatbotClient:
             assert self.use_websocket
             self.wait_for_chat_ready(chat_id)
 
-    def send_history(self, chat_id, chat_history_with_images, blocking=True):
+        return chat_id
+
+    def _resolve_phantom_chat_name(self):
+        if self.send_history_increment_chatname:
+            chat_id = f"{self.send_history_base_chatname} ({self.send_history_index})"
+            self.send_history_index += 1
+        else:
+            chat_id = f"{self.send_history_base_chatname}"
+        return chat_id
+
+
+    def send_history(self, chat_id: Union[None, str], chat_history_maybe_with_images: Union[ChatHistoryWithImages, ChatHistory], blocking=True):
+        if chat_id is None:
+            chat_id = self._resolve_phantom_chat_name()
+
+        if isinstance(chat_history_maybe_with_images, ChatHistoryWithImages):
+            chat_history_data = chat_history_maybe_with_images.chat_history.history
+        else:
+            chat_history_data = chat_history_maybe_with_images.history
+
+        image_files = None
+        if isinstance(chat_history_maybe_with_images, ChatHistoryWithImages):
+            image_files = chat_history_maybe_with_images.open_images()
+
         data = {
             "chat_id": chat_id,
             "api_key": self.api_key,
-            "chat_history": json.dumps(chat_history_with_images.chat_history.history),
+            "chat_history": json.dumps(chat_history_data),
         }
 
         self.chat_readiness[chat_id] = False
-        response = requests.post(f"{self.base_url}/send_history", data=data, files=chat_history_with_images.open_images())
+        response = requests.post(f"{self.base_url}/send_history", data=data, files=image_files)
         response.raise_for_status()
 
         if blocking:
             assert self.use_websocket
             self.wait_for_chat_ready(chat_id)
+
+        return chat_id
 
     def wait_for_chat_ready(self, chat_id):
         while True:
@@ -107,6 +140,18 @@ class ChatbotClient:
 # Usage example
 if __name__ == "__main__":
     client = ChatbotClient("http://127.0.0.1:5000", "your_api_key")
+
+    chat_id = client.send_message("this is a new chat.", "Ignore any images. Please tell me how to go from point A to point B.", blocking=True)
+
+    print(client.get_chat_messages(chat_id).pretty())
+    exit()
+
+    chat_id = client.send_history(None,
+                                  ChatHistory().add(CHAT_ROLE.USER, "Bonjour baguette!"))  # chat_history_with_images)
+
+    print(chat_id)
+    print(client.get_chat_messages(chat_id).pretty())
+
     chat_id = client.create_chat()
     client.send_message(chat_id, "Hello from the Python client!", blocking=False)
     client.wait_for_chat_ready(chat_id)
@@ -118,9 +163,9 @@ if __name__ == "__main__":
     print()
     print()
 
-    chat_history_with_images = ChatHistoryWithImages(client.get_chat_messages(chat_id), {})
-    chat_history_with_images = chat_history_with_images.add(CHAT_ROLE.USER, "Can you describe this image?", "/home/charlie/Downloads/block-tower.jpg")
+    #chat_history_with_images = ChatHistoryWithImages(client.get_chat_messages(chat_id), {})
+    #chat_history_with_images = chat_history_with_images.add(CHAT_ROLE.USER, "Can you describe this image?", "/home/charlie/Downloads/block-tower.jpg")
 
-    client.send_history("new chat!", chat_history_with_images)
+    client.send_history("new chat!", client.get_chat_messages(chat_id))# chat_history_with_images)
 
     print(client.get_chat_messages("new chat!").pretty())

@@ -97,9 +97,10 @@ def create_chat():
     if not authenticate(api_key):
         return jsonify({"error": "Unauthorized"}), 403
 
-
+    #chat_id = data.get('chat_id', None)
+    #if chat_id is None:
     chat_id = generate_name(chat_names())
-    #chat_id = str(uuid4())
+
     chats[chat_id] = ChatHistory()
     return jsonify({"chat_id": chat_id}), 201
 
@@ -152,6 +153,10 @@ def send_history():
         return jsonify({"error": "Unauthorized"}), 403
 
     chats[chat_id] = chat_history
+
+    if len(chat_history.history) == 0:
+        return jsonify({"status": "Chat History imported, assistant NOT notified because history len is 0"}), 200
+
 
     images = request.files #.getall() # {hash: bytes}
     for image_hash, image in images.items():
