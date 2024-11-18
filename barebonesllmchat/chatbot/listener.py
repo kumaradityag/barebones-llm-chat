@@ -7,10 +7,9 @@ import traceback
 import requests
 try:
     import socketio
-except Exception:
+except Exception as e:
     print("Could not import socketio. Are you sure it's installed? Are you sure you activated your venv/conda?", file=sys.stderr)
-    traceback.format_exc()
-    exit(1)
+    raise e
 from PIL import Image
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))

@@ -64,11 +64,7 @@ class Olmo:
 
         output = self.model.generate_from_batch(
             inputs,
-<<<<<<< HEAD
-            GenerationConfig(max_new_tokens=500, stop_strings="<|endoftext|>"),
-=======
             GenerationConfig(**generation_settings, stop_strings="<|endoftext|>"),
->>>>>>> 5c39f27b142bb64a1b325a614d4fce7c34828461
             tokenizer=self.processor.tokenizer
         )
 
