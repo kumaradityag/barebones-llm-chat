@@ -8,8 +8,7 @@ import requests
 import sys
 import pathlib
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
-import common
-from common.chat_history import CHAT_ROLE, ChatHistory
+from barebonesllmchat.common.chat_history import CHAT_ROLE, ChatHistory
 
 
 class Olmo:

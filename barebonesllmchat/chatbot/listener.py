@@ -14,7 +14,7 @@ except Exception:
 from PIL import Image
 
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
-from common.chat_history import ChatHistory
+from barebonesllmchat.common.chat_history import ChatHistory
 
 secrets = json.load(open(pathlib.Path(__file__).parent.parent / "secrets" / 'secrets.json'))
 CONST_SERVER_IP = secrets["server_ip"]
@@ -32,7 +32,7 @@ CONST_DOWNLOAD_DIR = secrets["listener_download_dir"]   #"./downloads"
 shutil.rmtree(CONST_DOWNLOAD_DIR, ignore_errors=True)   # todo maybe not wipe downloads every init
 os.makedirs(CONST_DOWNLOAD_DIR, exist_ok=True)
 
-from chatbot.molmo_bot import Olmo
+from barebonesllmchat.chatbot.molmo_bot import Olmo
 LLM = Olmo()
 
 @sio.on('new_message_from_user')

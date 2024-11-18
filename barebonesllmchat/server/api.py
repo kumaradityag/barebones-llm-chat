@@ -15,14 +15,15 @@ from enum import Enum
 import dataclasses
 from typing import Dict, Tuple, Union
 
-from server.random_names import generate_name
 
 import sys
 import pathlib
+
+from barebonesllmchat.server.random_names import generate_name
+
 sys.path.append(str(pathlib.Path(__file__).parent.parent.resolve()))
-import common
-from common.chat_history import CHAT_ROLE, ChatHistory
-from common.image_handling import save_image
+from barebonesllmchat.common.chat_history import CHAT_ROLE, ChatHistory
+from barebonesllmchat.common.image_handling import save_image
 
 
 
@@ -96,9 +97,10 @@ def create_chat():
     if not authenticate(api_key):
         return jsonify({"error": "Unauthorized"}), 403
 
-
+    #chat_id = data.get('chat_id', None)
+    #if chat_id is None:
     chat_id = generate_name(chat_names())
-    #chat_id = str(uuid4())
+
     chats[chat_id] = ChatHistory()
     return jsonify({"chat_id": chat_id}), 201
 
@@ -151,6 +153,10 @@ def send_history():
         return jsonify({"error": "Unauthorized"}), 403
 
     chats[chat_id] = chat_history
+
+    if len(chat_history.history) == 0:
+        return jsonify({"status": "Chat History imported, assistant NOT notified because history len is 0"}), 200
+
 
     images = request.files #.getall() # {hash: bytes}
     for image_hash, image in images.items():

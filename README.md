@@ -19,7 +19,15 @@ This is a simplistic interface for hosting chatbots. It comes with the following
     - Methods to download the images stored in the server.
 - Python interface
     - An interface for python
-    - A work-in-progress CLI interface. (But I gave up because ChatGPT can't properly generate this stuff. I'm not about to code that stuff by hand lol. If you can help finish it (i.e. know better prompting techniques for python Curses let me know.))
+    - A work-in-progress CLI interface. (But I gave up because ChatGPT can't properly generate this stuff. I'm not about to code that stuff by hand lol. If you can help finish it (i.e. know better prompting techniques for python Curses) let me know.)
+ 
+# How do I install it?
+
+Quick and easy: `pip3 install -e git+https://github.com/Velythyl/barebones-llm-chat.git#egg=barebonesllmchat`
+
+You can also `git clone` and then `pip3 install -e .`
+
+If you have a modern code editor (PyCharm, VSCode, etc.) you don't even need to install, the editor should finagle the python paths properly and you should be able to directly launch the scripts.
 
 # How do I use it?
 
@@ -34,7 +42,7 @@ ssh -R 5000:localhost:5000 <node address>
 
 This makes it so queries to `localhost:5000` on the node actually go to your local computer.
 
-Then, just run `api.py` on your computer and open up `index.py` in your browser.
+Then, just run `api.py` on your computer and open up the IP address in your browser.
 
 In this way, you could also just host everything on the same node, without the need for tunnels. You could run the LLM, the API, as well as some other in-training agent that now has access to the LLM.
 
