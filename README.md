@@ -20,6 +20,14 @@ This is a simplistic interface for hosting chatbots. It comes with the following
 - Python interface
     - An interface for python
     - A work-in-progress CLI interface. (But I gave up because ChatGPT can't properly generate this stuff. I'm not about to code that stuff by hand lol. If you can help finish it (i.e. know better prompting techniques for python Curses) let me know.)
+ 
+# How do I install it?
+
+Quick and easy: `pip3 install -e git+https://github.com/Velythyl/barebones-llm-chat.git#egg=barebonesllmchat`
+
+You can also `git clone` and then `pip3 install -e .`
+
+If you have a modern code editor (PyCharm, VSCode, etc.) you don't even need to install, the editor should finagle the python paths properly and you should be able to directly launch the scripts.
 
 # How do I use it?
 
