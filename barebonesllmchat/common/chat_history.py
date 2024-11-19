@@ -55,6 +55,30 @@ class ChatHistory:
         ret = "\n".join(ret) + " Assistant:"
         return ret
     
+    def to_lowercase_roles(self):
+        ret = []
+        for kv in self.history:
+            to_add = {}
+            for k, v in kv.items():
+                if k == "role":
+                    v = v.lower()
+                to_add[k] = v
+            ret.append(to_add)
+        return ChatHistory(ret)
+    
+    @property
+    def history_without_images(self):
+        ret = []
+        for kv in self.history:
+            to_add = {}
+            for k, v in kv.items():
+                k = k.lower()
+                if k == "image":
+                    continue
+                to_add[k] = v
+            ret.append(to_add)
+        return ret
+    
     def pretty(self):
         ret = []
         for message in self.history:

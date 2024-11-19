@@ -6,6 +6,11 @@ import sys
 import traceback
 import requests
 
+SCRATCH_PATH = os.environ.get("SCRATCH")
+HF_PATH = f"{SCRATCH_PATH}/hfcache"
+os.makedirs(HF_PATH, exist_ok=True)
+os.environ['HF_HOME'] = HF_PATH
+
 
 try:
     import socketio

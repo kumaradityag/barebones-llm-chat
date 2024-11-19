@@ -42,6 +42,7 @@ class Molmo(_Bot):
             torch_dtype='auto',
             device_map='auto'
         ).to(dtype=self.precision)
+        print("Molmo loaded")
 
 
     def respond(self, chat, images=None, generation_settings=None):
