@@ -19,15 +19,15 @@ from dataclasses import dataclass
 @dataclass
 class DefaultOlmoSettings:
     max_new_tokens:int = 512
-    do_sample:bool = True
-    top_k:int = 50
-    top_p:float = 0.95
+    #do_sample:bool = True
+    #top_k:int = 50
+    #top_p:float = 0.95
 
     def replace(self, **kwargs):
         return dataclasses.replace(self, **kwargs)
 
 class Olmo(_Bot):
-    def __init__(self, model_string="allenai/OLMo-7B-0724-Instruct-hf", precision=torch.bfloat16):
+    def __init__(self, model_string="allenai/OLMo-2-1124-13B-Instruct", precision=torch.bfloat16):
         super().__init__(model_string, precision)
 
         from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -43,6 +43,10 @@ class Olmo(_Bot):
             device_map='auto'
             )
         print("Olmo loaded")
+
+        import torch
+
+        torch.backends.cuda.matmul.allow_tf32 = True
 
     def respond(self, chat, images=None, generation_settings=None):
         if images is not None:
@@ -61,6 +65,8 @@ class Olmo(_Bot):
         print()
 
         messages = chat.to_lowercase_roles().history_without_images
+
+
 
         prompt = self.tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
         inputs = self.tokenizer.encode(prompt, add_special_tokens=False, return_tensors="pt")

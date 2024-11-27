@@ -66,6 +66,17 @@ class ChatHistory:
             ret.append(to_add)
         return ChatHistory(ret)
     
+    def to_system_as_user(self):
+        ret = []
+        for kv in self.history:
+            to_add = {}
+            for k, v in kv.items():
+                if k == "role" and v.lower() == CHAT_ROLE.SYSTEM.name.lower():
+                    v = CHAT_ROLE.USER.name.lower().capitalize()
+                to_add[k] = v
+            ret.append(to_add)
+        return ChatHistory(ret)
+    
     @property
     def history_without_images(self):
         ret = []
