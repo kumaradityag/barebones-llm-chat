@@ -15,7 +15,7 @@ os.environ['HF_HOME'] = HF_PATH
 try:
     import socketio
 except Exception as e:
-    print("Could not import socketio. Are you sure it's installed? Are you sure you activated your venv/conda?", file=sys.stderr)
+    print("Could not import socketio. Are you sure it's installed? Are you sure you activated your venv/conda? Loaded your modules?", file=sys.stderr)
     raise e
 from PIL import Image
 
@@ -41,6 +41,7 @@ os.makedirs(CONST_DOWNLOAD_DIR, exist_ok=True)
 
 from barebonesllmchat.chatbot.bots.molmo_bot import Molmo
 from barebonesllmchat.chatbot.bots.olmo_bot import Olmo
+from barebonesllmchat.chatbot.bots.qwen2p5_bot import Qwen2p5
 LLM = Olmo()
 
 
