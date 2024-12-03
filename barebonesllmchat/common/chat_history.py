@@ -65,6 +65,17 @@ class ChatHistory:
                 to_add[k] = v
             ret.append(to_add)
         return ChatHistory(ret)
+
+    def to_uppercase_roles(self):
+        ret = []
+        for kv in self.history:
+            to_add = {}
+            for k, v in kv.items():
+                if k == "role":
+                    v = v.capitalize()
+                to_add[k] = v
+            ret.append(to_add)
+        return ChatHistory(ret)
     
     @property
     def history_without_images(self):
