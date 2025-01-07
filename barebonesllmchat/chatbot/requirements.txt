@@ -7,6 +7,12 @@ transformers
 tokenizers
 ai2-olmo-core
 autoawq
-python-socketio[client]
+#python-socketio[client]
 flask_socketio
 requests
+wheel
+flash-attn
+#socketio
+optimum
+auto-gptq
+bitsandbytes
