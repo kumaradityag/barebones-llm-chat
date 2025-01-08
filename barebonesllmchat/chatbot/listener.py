@@ -42,7 +42,7 @@ os.makedirs(CONST_DOWNLOAD_DIR, exist_ok=True)
 from barebonesllmchat.chatbot.bots.molmo_bot import Molmo
 from barebonesllmchat.chatbot.bots.olmo_bot import Olmo
 from barebonesllmchat.chatbot.bots.qwen2p5_bot import Qwen2p5
-LLM = Olmo()
+LLM = Qwen2p5()
 
 
 
