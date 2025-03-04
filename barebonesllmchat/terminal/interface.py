@@ -174,7 +174,7 @@ if __name__ == "__main__":
 
     chat_id = client.send_history(None,
                                   ChatHistory().add(CHAT_ROLE.USER, "Bonjour baguette!"),
-                                  generation_settings={"max_new_tokens": 512, "temperature": 0.0}
+                                  generation_settings={"max_new_tokens": 512, "temperature": 0.1}
                                   )  # chat_history_with_images)
 
     print(chat_id)
@@ -204,9 +204,9 @@ if __name__ == "__main__":
     print()
     print()
 
-    #chat_history_with_images = ChatHistoryWithImages(client.get_chat_messages(chat_id), {})
-    #chat_history_with_images = chat_history_with_images.add(CHAT_ROLE.USER, "Can you describe this image?", "/home/charlie/Downloads/block-tower.jpg")
+    chat_history_with_images = ChatHistoryWithImages(client.get_chat_messages(chat_id), {})
+    chat_history_with_images = chat_history_with_images.add(CHAT_ROLE.USER, "Can you describe this image?", "/home/charlie/Downloads/block-tower.jpg")
 
-    client.send_history("new chat!", client.get_chat_messages(chat_id))# chat_history_with_images)
+    client.send_history("new chat!", chat_history_with_images)
 
     print(client.get_chat_messages("new chat!").pretty())

@@ -65,6 +65,17 @@ class ChatHistory:
                 to_add[k] = v
             ret.append(to_add)
         return ChatHistory(ret)
+
+    def to_uppercase_roles(self):
+        ret = []
+        for kv in self.history:
+            to_add = {}
+            for k, v in kv.items():
+                if k == "role":
+                    v = v.capitalize()
+                to_add[k] = v
+            ret.append(to_add)
+        return ChatHistory(ret)
     
     def to_system_as_user(self):
         ret = []
@@ -96,6 +107,14 @@ class ChatHistory:
             ret.append(f"{message['role'].capitalize()}: {message['content']}")
 
         return "\n\n".join(ret)
+
+    @classmethod
+    def from_history_dict(cls, dico):
+        self = cls()
+        for msg in dico:
+            self = self.add(msg["role"], msg["content"])
+        return self
+
 
 @dataclass
 class ChatHistoryWithImages:
