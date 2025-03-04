@@ -1,9 +1,11 @@
+wheel
+packaging
 Pillow
 einops
-torch
+torch#<=2.5.0
 torchvision
 accelerate>=0.26.0
-transformers
+git+https://github.com/huggingface/transformers 
 tokenizers
 ai2-olmo-core
 autoawq
@@ -16,3 +18,4 @@ flash-attn
 optimum
 auto-gptq
 bitsandbytes
+qwen-vl-utils[decord]==0.0.8
