@@ -3,3 +3,4 @@ python-socketio[client]
 flask_socketio
 requests
 flask
+pillow
