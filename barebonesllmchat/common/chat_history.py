@@ -108,6 +108,14 @@ class ChatHistory:
 
         return "\n\n".join(ret)
 
+    @classmethod
+    def from_history_dict(cls, dico):
+        self = cls()
+        for msg in dico:
+            self = self.add(msg["role"], msg["content"])
+        return self
+
+
 @dataclass
 class ChatHistoryWithImages:
     chat_history: ChatHistory
